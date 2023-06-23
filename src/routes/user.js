@@ -9,6 +9,13 @@ router.post('/register', userController.register);
 // Login
 router.post('/login', userController.login);
 
+// Get Detail User
+router.get('/detail/:id', userController.detail);
+
 // Get All User
+router.get('/all', userController.all);
+
+// Delete User
+router.delete('/delete/:id', userController.delete);
 
 module.exports = router;
