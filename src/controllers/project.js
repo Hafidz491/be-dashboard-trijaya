@@ -1,14 +1,36 @@
+const { path } = require('express/lib/application');
 const db = require('../database/models/');
 
-exports.addProject = async (req, res) => {
+exports.addInstansi = async (req, res) => {
   const { instansiName, projectNumber, address } = req.body;
+  const document = req.files.document;
+  const fileExtension = document.name.split('.').pop();
+  const time = Math.floor(Date.now() / 1000);
+
+  if (!document) {
+    return res.status(400).json({
+      code: 400,
+      message: 'Tidak ada file',
+    });
+  }
+
+  if (fileExtension !== 'pdf') {
+    return res.status(400).json({
+      code: 400,
+      message: 'File harus berupa pdf',
+    });
+  }
+
   try {
+    const documentName = `Document-${instansiName}-${time}.${fileExtension}`;
     const newProject = await db.Project.create({
       instansiName,
       projectNumber,
       address,
+      document: documentName,
       isFinished: false,
     });
+
     res.json({
       status: 200,
       message: 'Berhasil menambahkan project',

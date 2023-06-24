@@ -9,7 +9,7 @@ router.get('/all', projectController.getAllProjects);
 router.get('/item/:id', projectController.getInstanstiWithItem);
 
 // Post
-router.post('/add', verifyToken, projectController.addProject);
+router.post('/add', verifyToken, projectController.addInstansi);
 router.post('/add-item', verifyToken, projectController.addItemToProject);
 
 // Put
