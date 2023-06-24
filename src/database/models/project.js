@@ -15,8 +15,9 @@ module.exports = (sequelize, DataTypes) => {
   Project.init(
     {
       instansiName: DataTypes.STRING,
-      projectNumber: DataTypes.INTEGER,
+      projectNumber: DataTypes.STRING,
       address: DataTypes.TEXT,
+      document: DataTypes.STRING,
       isFinished: DataTypes.BOOLEAN,
     },
     {

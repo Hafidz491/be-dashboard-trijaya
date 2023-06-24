@@ -7,31 +7,34 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       instansiName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       projectNumber: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING,
       },
       address: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+      },
+      document: {
+        type: Sequelize.STRING,
       },
       isFinished: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Projects');
-  }
+  },
 };
