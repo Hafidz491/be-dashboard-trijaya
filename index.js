@@ -1,22 +1,26 @@
 // Express
 const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
+
 const app = express();
 const port = process.env.PORT || 5000;
-const bodyParser = require('body-parser');
 
 // Url Endcoded
 app.use(express.urlencoded({ extended: true }));
-
 // Body Parser
 app.use(bodyParser.json());
-
-// Cors
-const cors = require('cors');
-
 // Serve Static File in 'Public' Folder
 app.use(express.static('public'));
 // Allow Cors
 app.use(cors());
+// File Upload
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
 
 // Route
 const projectRouter = require('./src/routes/project');
