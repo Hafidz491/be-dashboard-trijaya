@@ -6,7 +6,9 @@ const projectController = require('../controllers/project');
 
 // Get
 router.get('/all', projectController.getAllProjects);
+router.get('/all/:status', projectController.getAllProjectByStatus);
 router.get('/item/:id', projectController.getInstanstiWithItem);
+router.get('/:id', projectController.getProjectById);
 
 // Post
 router.post('/add', verifyToken, projectController.addInstansi);
