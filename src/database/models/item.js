@@ -13,12 +13,13 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Item.init(
-    { 
+    {
       instansiId: DataTypes.INTEGER,
       itemName: DataTypes.STRING,
       itemVolume: DataTypes.INTEGER,
-      itemUnit: DataTypes.STRING,
+      itemUnit: DataTypes.INTEGER,
       price: DataTypes.BIGINT,
+      total: DataTypes.BIGINT,
     },
     {
       sequelize,
