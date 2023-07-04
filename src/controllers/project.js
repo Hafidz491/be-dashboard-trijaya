@@ -49,13 +49,14 @@ exports.addInstansi = async (req, res) => {
 };
 
 exports.addItemToProject = async (req, res) => {
-  const { instansiId, itemName, itemVolume, itemUnit, price } = req.body;
+  const { instansiId, itemName, itemVolume, itemUnit, price, total } = req.body;
   try {
     const newItem = await db.Item.create({
       itemName,
       itemVolume,
       itemUnit,
       price,
+      total,
       instansiId: instansiId,
     });
     res.json({
@@ -104,14 +105,17 @@ exports.getAllProjectByStatus = async (req, res) => {
   // get all projects by status isFinished
   const { status } = req.params;
 
+  const isFinished = status === 'true' ? true : false;
+
   try {
     const projects = await db.Project.findAll({
-      where: { isFinished: status },
+      where: { isFinished: isFinished },
       attributes: [
         'id',
         'instansiName',
         'createdAt',
-        [sequelize.fn('SUM', sequelize.col('items.price')), 'totalPrice'],
+        'isFinished',
+        [sequelize.fn('SUM', sequelize.col('items.total')), 'totalPrice'],
       ],
       include: [
         {
@@ -138,7 +142,22 @@ exports.getInstanstiWithItem = async (req, res) => {
   try {
     const instansi = await db.Project.findOne({
       where: { id: instansiId },
-      include: { model: db.Item, as: 'items' },
+      attributes: [
+        'id',
+        'instansiName',
+        'projectNumber',
+        'address',
+        'document',
+        'isFinished',
+        'createdAt',
+        'updatedAt',
+        [db.sequelize.fn('SUM', db.sequelize.col('total')), 'totalPrice'],
+      ],
+      include: {
+        model: db.Item,
+        as: 'items',
+      },
+      group: ['Project.id', 'items.id'],
     });
     res.json({
       status: 'success',
@@ -200,6 +219,30 @@ exports.updateProject = async (req, res) => {
     });
   }
 };
+exports.updateProjectFinished = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const updateProject = await db.Project.update(
+      {
+        isFinished: true,
+      },
+      {
+        where: { id: id },
+      }
+    );
+    res.json({
+      status: 200,
+      message: 'Berhasil mengupdate project',
+      data: updateProject,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: 'Internal Server Error',
+    });
+  }
+};
 
 // Get Project By Id
 exports.getProjectById = async (req, res) => {
@@ -215,7 +258,7 @@ exports.getProjectById = async (req, res) => {
         'document',
         'isFinished',
         'createdAt',
-        [sequelize.fn('SUM', sequelize.col('items.price')), 'totalPrice'],
+        [sequelize.fn('SUM', sequelize.col('items.total')), 'totalPrice'],
       ],
       include: [
         {
@@ -236,5 +279,18 @@ exports.getProjectById = async (req, res) => {
 };
 
 // TODO: delete project
-
+exports.deleteItem = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const item = await db.Item.destroy({
+      where: { id: id },
+    });
+    res.json({
+      status: 'success',
+      data: item,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 // TODO: delete item
