@@ -1,4 +1,3 @@
-const { path } = require('express/lib/application');
 const db = require('../database/models/');
 const sequelize = require('sequelize');
 
@@ -232,7 +231,7 @@ exports.updateProjectFinished = async (req, res) => {
     );
     res.json({
       status: 200,
-      message: 'Berhasil mengupdate project',
+      message: 'Berhasil menyelesaikan project',
       data: updateProject,
     });
   } catch (error) {
@@ -278,7 +277,7 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
-// TODO: delete project
+// TODO: delete item
 exports.deleteItem = async (req, res) => {
   const { id } = req.params;
   try {
@@ -293,4 +292,3 @@ exports.deleteItem = async (req, res) => {
     console.log(error);
   }
 };
-// TODO: delete item
