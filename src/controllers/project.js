@@ -4,47 +4,64 @@ const sequelize = require('sequelize');
 // Add new Project
 const addInstansi = async (req, res) => {
   const { instansiName, projectNumber, address } = req.body;
-  try {
-    if (!req.files) {
-      return res.status(400).json({
-        code: 400,
-        message: 'Tidak ada file',
+  if (!req.files) {
+    try {
+      const newProject = await db.Project.create({
+        instansiName,
+        projectNumber,
+        address,
+        document: null,
+        isFinished: false,
+      });
+
+      res.json({
+        status: 200,
+        message: 'Berhasil menambahkan project',
+        data: newProject,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Internal Server Error',
       });
     }
+  } else {
+    try {
+      const document = req.files.document;
+      const fileExtension = document.name.split('.').pop();
+      const time = Math.floor(Date.now() / 1000);
 
-    const document = req.files.document;
-    const fileExtension = document.name.split('.').pop();
-    const time = Math.floor(Date.now() / 1000);
+      if (fileExtension !== 'pdf') {
+        return res.status(400).json({
+          code: 400,
+          message: 'File harus berupa pdf',
+        });
+      }
 
-    if (fileExtension !== 'pdf') {
-      return res.status(400).json({
-        code: 400,
-        message: 'File harus berupa pdf',
+      const documentName = `Document-${instansiName}-${time}.${fileExtension}`;
+      const newProject = await db.Project.create({
+        instansiName,
+        projectNumber,
+        address,
+        document: documentName,
+        isFinished: false,
+      });
+
+      document.mv(`./public/document/${instansiName}/${documentName}`);
+
+      res.json({
+        status: 200,
+        message: 'Berhasil menambahkan project',
+        data: newProject,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Internal Server Error',
       });
     }
-
-    const documentName = `Document-${instansiName}-${time}.${fileExtension}`;
-    const newProject = await db.Project.create({
-      instansiName,
-      projectNumber,
-      address,
-      document: documentName,
-      isFinished: false,
-    });
-
-    document.mv(`./public/document/${instansiName}/${documentName}`);
-
-    res.json({
-      status: 200,
-      message: 'Berhasil menambahkan project',
-      data: newProject,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Internal Server Error',
-    });
   }
 };
 
@@ -176,51 +193,73 @@ const getInstanstiWithItem = async (req, res) => {
 const updateProject = async (req, res) => {
   const { instansiName, projectNumber, address } = req.body;
   const { id } = req.params;
-  if (!req.files) {
-    return res.status(400).json({
-      code: 400,
-      message: 'Tidak ada file',
-    });
-  }
-  try {
-    const document = req.files.document;
-    const fileExtension = document.name.split('.').pop();
-    const time = Math.floor(Date.now() / 1000);
 
-    if (fileExtension !== 'pdf') {
-      return res.status(400).json({
-        code: 400,
-        message: 'File harus berupa pdf',
+  if (!req.files) {
+    try {
+      const updateProject = await db.Project.update(
+        {
+          instansiName,
+          projectNumber,
+          address,
+        },
+        {
+          where: { id: id },
+        }
+      );
+
+      res.json({
+        status: 200,
+        message: 'Berhasil mengupdate project',
+        data: updateProject,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: 500,
+        message: 'Internal Server Error',
       });
     }
+  } else {
+    try {
+      const document = req.files.document;
+      const fileExtension = document.name.split('.').pop();
+      const time = Math.floor(Date.now() / 1000);
 
-    const documentName = `Document-${instansiName}-${time}.${fileExtension}`;
-
-    const updateProject = await db.Project.update(
-      {
-        instansiName,
-        projectNumber,
-        address,
-        document: documentName,
-      },
-      {
-        where: { id: id },
+      if (fileExtension !== 'pdf') {
+        return res.status(400).json({
+          code: 400,
+          message: 'File harus berupa pdf',
+        });
       }
-    );
 
-    document.mv(`./public/document/${instansiName}/${documentName}`);
+      const documentName = `Document-${instansiName}-${time}.${fileExtension}`;
 
-    res.json({
-      status: 200,
-      message: 'Berhasil mengupdate project',
-      data: updateProject,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      status: 500,
-      message: 'Internal Server Error',
-    });
+      const updateProject = await db.Project.update(
+        {
+          instansiName,
+          projectNumber,
+          address,
+          document: documentName,
+        },
+        {
+          where: { id: id },
+        }
+      );
+
+      document.mv(`./public/document/${instansiName}/${documentName}`);
+
+      res.json({
+        status: 200,
+        message: 'Berhasil mengupdate project',
+        data: updateProject,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        status: 500,
+        message: 'Internal Server Error',
+      });
+    }
   }
 };
 const updateProjectFinished = async (req, res) => {
