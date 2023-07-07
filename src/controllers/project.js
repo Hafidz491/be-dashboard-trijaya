@@ -1,9 +1,10 @@
 const db = require('../database/models/');
 const sequelize = require('sequelize');
 
-exports.addInstansi = async (req, res) => {
+// Add new Project
+const addInstansi = async (req, res) => {
+  const { instansiName, projectNumber, address } = req.body;
   try {
-    const { instansiName, projectNumber, address } = req.body;
     if (!req.files) {
       return res.status(400).json({
         code: 400,
@@ -47,7 +48,8 @@ exports.addInstansi = async (req, res) => {
   }
 };
 
-exports.addItemToProject = async (req, res) => {
+// Insert item to Project
+const addItemToProject = async (req, res) => {
   const { instansiId, itemName, itemVolume, itemUnit, price, total } = req.body;
   try {
     const newItem = await db.Item.create({
@@ -72,7 +74,8 @@ exports.addItemToProject = async (req, res) => {
   }
 };
 
-exports.getAllProjects = async (req, res) => {
+// Get All Project
+const getAllProjects = async (req, res) => {
   // get all projects from table Projects
   try {
     const projects = await db.Project.findAll({
@@ -100,7 +103,8 @@ exports.getAllProjects = async (req, res) => {
   }
 };
 
-exports.getAllProjectByStatus = async (req, res) => {
+// Get All Project by status
+const getAllProjectByStatus = async (req, res) => {
   // get all projects by status isFinished
   const { status } = req.params;
 
@@ -134,7 +138,8 @@ exports.getAllProjectByStatus = async (req, res) => {
   }
 };
 
-exports.getInstanstiWithItem = async (req, res) => {
+// Get item from instansi
+const getInstanstiWithItem = async (req, res) => {
   // get all item by instansi id
   const instansiId = req.params.id;
 
@@ -168,7 +173,7 @@ exports.getInstanstiWithItem = async (req, res) => {
 };
 
 // Update Project
-exports.updateProject = async (req, res) => {
+const updateProject = async (req, res) => {
   const { instansiName, projectNumber, address } = req.body;
   const { id } = req.params;
   if (!req.files) {
@@ -218,7 +223,7 @@ exports.updateProject = async (req, res) => {
     });
   }
 };
-exports.updateProjectFinished = async (req, res) => {
+const updateProjectFinished = async (req, res) => {
   const { id } = req.params;
   try {
     const updateProject = await db.Project.update(
@@ -244,7 +249,7 @@ exports.updateProjectFinished = async (req, res) => {
 };
 
 // Get Project By Id
-exports.getProjectById = async (req, res) => {
+const getProjectById = async (req, res) => {
   const { id } = req.params;
   try {
     const project = await db.Project.findOne({
@@ -277,8 +282,8 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
-// TODO: delete item
-exports.deleteItem = async (req, res) => {
+// Delete item
+const deleteItem = async (req, res) => {
   const { id } = req.params;
   try {
     const item = await db.Item.destroy({
@@ -291,4 +296,58 @@ exports.deleteItem = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+// Get All Informations
+const getAllInformation = async (req, res) => {
+  // Query total income (sum of all items) for all projects
+  const totalIncome = await db.Project.sum('total', {
+    include: { model: db.Item, as: 'items' },
+  });
+
+  // Query projects that are finished
+  const finishedProjects = await db.Project.count({
+    where: { isFinished: true },
+  });
+
+  // Query projects that are unfinished
+  const unfinishedProjects = await db.Project.count({
+    where: { isFinished: false },
+  });
+
+  const finishedProjectsPerMonth = await db.Project.findAll({
+    attributes: [
+      [db.sequelize.literal('DATE_FORMAT(createdAt, "%M")'), 'month'],
+      [
+        db.sequelize.fn('COUNT', db.sequelize.col('id')),
+        'totalFinishedProjects',
+      ],
+    ],
+    where: { isFinished: true },
+    group: [db.sequelize.literal('MONTH(createdAt)')],
+  });
+
+  const newData = {
+    totalIncome,
+    finishedProjects,
+    unfinishedProjects,
+  };
+
+  res.json({
+    status: 'success',
+    data: newData,
+  });
+};
+
+module.exports = {
+  addInstansi,
+  addItemToProject,
+  getAllProjects,
+  getAllProjectByStatus,
+  getInstanstiWithItem,
+  updateProject,
+  updateProjectFinished,
+  getProjectById,
+  deleteItem,
+  getAllInformation,
 };

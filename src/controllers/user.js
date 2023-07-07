@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const secretKey = 'sangat-rahasia';
 
-// TODO: Register user
-exports.register = async (req, res) => {
+//  Register user
+const register = async (req, res) => {
   try {
     const { name, email, role, password } = req.body;
 
@@ -43,8 +43,8 @@ exports.register = async (req, res) => {
   }
 };
 
-// TODO: Login user
-exports.login = async (req, res) => {
+//  Login user
+const login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await db.User.findOne({
@@ -79,8 +79,8 @@ exports.login = async (req, res) => {
   });
 };
 
-// TODO: Get detail user
-exports.detail = async (req, res) => {
+//  Get detail user
+const detail = async (req, res) => {
   const { id } = req.params;
 
   const user = await db.User.findOne({
@@ -100,8 +100,8 @@ exports.detail = async (req, res) => {
   });
 };
 
-// TODO: Get all users
-exports.all = async (req, res) => {
+//  Get all users
+const all = async (req, res) => {
   const users = await db.User.findAll();
 
   res.json({
@@ -111,8 +111,8 @@ exports.all = async (req, res) => {
   });
 };
 
-// TODO: Delete user
-exports.delete = async (req, res) => {
+//  Delete user
+const deleteById = async (req, res) => {
   const { id } = req.params;
 
   const user = await db.User.findOne({
@@ -132,4 +132,12 @@ exports.delete = async (req, res) => {
     message: 'Berhasil menghapus user',
     data: user,
   });
+};
+
+module.exports = {
+  register,
+  login,
+  detail,
+  all,
+  deleteById,
 };

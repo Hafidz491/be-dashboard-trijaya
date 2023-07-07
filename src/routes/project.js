@@ -7,6 +7,8 @@ const projectController = require('../controllers/project');
 /* GET listing. */
 // Get All Project
 router.get('/all', projectController.getAllProjects);
+// Get All Information
+router.get('/all/informations', projectController.getAllInformation);
 // Get All Project By Status
 router.get('/all/:status', projectController.getAllProjectByStatus);
 // Get Items in Project
