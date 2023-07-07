@@ -134,10 +134,42 @@ const deleteById = async (req, res) => {
   });
 };
 
+// Update User
+const update = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, role, password } = req.body;
+
+  const user = await db.User.findOne({
+    where: { id: id },
+  });
+
+  if (!user)
+    return res.status(404).json({
+      code: 404,
+      message: 'User tidak ditemukan',
+    });
+
+  bcrypt.hash(password, 10).then(async (hash) => {
+    user.name = name;
+    user.email = email;
+    user.role = role;
+    user.password = hash;
+
+    await user.save();
+
+    res.json({
+      code: 200,
+      message: 'Berhasil mengubah user',
+      data: user,
+    });
+  });
+};
+
 module.exports = {
   register,
   login,
   detail,
   all,
   deleteById,
+  update,
 };
