@@ -15,9 +15,6 @@ module.exports = {
 
     function getRandomMonthTimestamp() {
       const currentYear = new Date().getFullYear();
-      const lastYear = currentYear - 1;
-      const randomYear =
-        Math.floor(Math.random() * (currentYear - lastYear + 1)) + lastYear; // Random year between last year and current year
       const randomMonth = Math.floor(Math.random() * 12) + 1; // Random month between 1 and 12
       const randomDay = Math.floor(Math.random() * 28) + 1; // Random day between 1 and 28
       const randomHour = Math.floor(Math.random() * 24); // Random hour between 0 and 23
@@ -25,7 +22,7 @@ module.exports = {
       const randomSecond = Math.floor(Math.random() * 60); // Random second between 0 and 59
 
       const randomTimestamp = new Date(
-        randomYear,
+        currentYear,
         randomMonth - 1,
         randomDay,
         randomHour,

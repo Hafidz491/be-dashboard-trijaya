@@ -354,18 +354,6 @@ const getAllInformation = async (req, res) => {
     where: { isFinished: false },
   });
 
-  const finishedProjectsPerMonth = await db.Project.findAll({
-    attributes: [
-      [db.sequelize.literal('DATE_FORMAT(createdAt, "%M")'), 'month'],
-      [
-        db.sequelize.fn('COUNT', db.sequelize.col('id')),
-        'totalFinishedProjects',
-      ],
-    ],
-    where: { isFinished: true },
-    group: [db.sequelize.literal('MONTH(createdAt)')],
-  });
-
   const newData = {
     totalIncome,
     finishedProjects,
@@ -375,6 +363,68 @@ const getAllInformation = async (req, res) => {
   res.json({
     status: 'success',
     data: newData,
+  });
+};
+
+// Get All Project per Month
+const getAllProjectPerMonth = async (req, res) => {
+  const projectStatsPerMonth = await db.Project.findAll({
+    attributes: [
+      [db.sequelize.literal('DATE_FORMAT(Project.createdAt, "%M")'), 'month'],
+      [
+        db.sequelize.literal(
+          'SUM(CASE WHEN isFinished = true THEN 1 ELSE 0 END)'
+        ),
+        'totalProjects',
+      ],
+      [db.sequelize.fn('SUM', db.sequelize.col('items.total')), 'totalRevenue'],
+    ],
+    include: [
+      {
+        model: db.Item,
+        as: 'items',
+        attributes: [],
+      },
+    ],
+    group: [db.sequelize.literal('MONTH(Project.createdAt)')],
+  });
+  res.json({
+    status: 'success',
+    data: projectStatsPerMonth,
+  });
+};
+
+// Get All Project Status per Month
+const getAllProjectStatusPerMonth = async (req, res) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+
+  const finishedAndUnfinishedProjectsPerMonth = await db.Project.findAll({
+    attributes: [
+      [db.sequelize.literal('DATE_FORMAT(createdAt, "%M")'), 'month'],
+      [
+        db.sequelize.literal(
+          'SUM(CASE WHEN isFinished = true THEN 1 ELSE 0 END)'
+        ),
+        'totalFinishedProjects',
+      ],
+      [
+        db.sequelize.literal(
+          'SUM(CASE WHEN isFinished = false THEN 1 ELSE 0 END)'
+        ),
+        'totalUnfinishedProjects',
+      ],
+    ],
+    where: db.sequelize.where(
+      db.sequelize.fn('YEAR', db.sequelize.col('createdAt')),
+      currentYear
+    ),
+    group: [db.sequelize.literal('MONTH(createdAt)')],
+  });
+
+  res.json({
+    status: 'success',
+    data: finishedAndUnfinishedProjectsPerMonth,
   });
 };
 
@@ -389,4 +439,6 @@ module.exports = {
   getProjectById,
   deleteItem,
   getAllInformation,
+  getAllProjectPerMonth,
+  getAllProjectStatusPerMonth,
 };

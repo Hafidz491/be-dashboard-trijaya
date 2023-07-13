@@ -2,13 +2,17 @@ const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middleware/verifytoken');
 
-const projectController = require('../controllers/project'); 
+const projectController = require('../controllers/project');
 
 /* GET listing. */
 // Get All Project
 router.get('/all', projectController.getAllProjects);
 // Get All Information
 router.get('/all/informations', projectController.getAllInformation);
+// Get All Project per Month
+router.get('/all/month', projectController.getAllProjectPerMonth);
+// Get All Project Status per Month
+router.get('/all/month/status', projectController.getAllProjectStatusPerMonth);
 // Get All Project By Status
 router.get('/all/:status', projectController.getAllProjectByStatus);
 // Get Items in Project
